@@ -1693,7 +1693,7 @@ class InputScanner:
         return val
 
     def test(self, pattern, index = 0):
-        index += self.__position;
+        index += self.__position
         return index >= 0 and index < self.__input_length and pattern.match(self.__input, index)
 
     def testChar(self, pattern, index = 0):
@@ -2169,10 +2169,15 @@ class Tokenizer:
                 continue
 
             input_scan.next()
+            base = 16
             if input_scan.peek() == 'x':
                 matched = input_scan.match(re.compile('x([0-9A-Fa-f]{2})'))
             elif input_scan.peek() == 'u':
-                matched = input_scan.match(re.compile('u([0-9A-Fa-f]{4})'));
+                matched = input_scan.match(re.compile('u([0-9A-Fa-f]{4})'))
+            # elif re.match("(^[1-7]{3,3}?)", input_scan.peek()):
+            elif input_scan.test(re.compile('([0-7]{3,3}?)')):
+                matched = input_scan.match(re.compile('([0-7]{3})'))
+                base = 8
             else:
                 out += '\\'
                 if input_scan.hasNext():
@@ -2183,7 +2188,7 @@ class Tokenizer:
             if not matched:
                 return s
 
-            escaped = int(matched.group(1), 16)
+            escaped = int(matched.group(1), base)
 
             if escaped > 0x7e and escaped <= 0xff and matched.group(0).startswith('x'):
                 # we bail out on \x7f..\xff,
